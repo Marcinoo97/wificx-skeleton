@@ -108,16 +108,26 @@ EvtWiFiDeviceSendCommand(
     TraceEntry();
 
     UNREFERENCED_PARAMETER(WdfDevice);
+
+    typedef struct {
+        UINT16 Type;
+        UINT16 Len;
+        UINT8 Buf[];
+    } WIFICX_TLV, *PWIFICX_TLV;
     
     UINT16 MessageID = WifiRequestGetMessageId(Request);
     UINT InputBufferLen, OutputBufferLen;
-    WifiRequestGetInOutBuffer(Request, &InputBufferLen, &OutputBufferLen);
+    PWDI_MESSAGE_HEADER Buffer = (PWDI_MESSAGE_HEADER)WifiRequestGetInOutBuffer(Request, &InputBufferLen, &OutputBufferLen);
 
     TraceLoggingWrite(WiFiCxSampleTraceProvider,
         "WiFiCommand",
         TraceLoggingHexInt16(MessageID),
         TraceLoggingUInt32(InputBufferLen),
-        TraceLoggingUInt32(OutputBufferLen));
+        TraceLoggingUInt32(OutputBufferLen),
+        TraceLoggingUInt16(Buffer->PortId),
+        TraceLoggingUInt32(Buffer->TransactionId));
+
+
 
     DbgPrint("Command: 0x%x, Input Len: %d, Output Len: %d\n", MessageID, InputBufferLen, OutputBufferLen);
 
